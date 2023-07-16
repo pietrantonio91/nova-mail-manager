@@ -2,11 +2,14 @@
 
 namespace Pietrantonio\NovaMailManager\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Mail;
 
 class EmailTemplate extends Model
 {
+    use HasFactory;
+
     protected $table = 'email_templates';
 
     protected $fillable = [
@@ -48,5 +51,10 @@ class EmailTemplate extends Model
         $email = new \Pietrantonio\NovaMailManager\Mail\TestEmail($this);
         $email->to($to);
         return Mail::send($email);
+    }
+
+    protected static function newFactory()
+    {
+        return \Pietrantonio\NovaMailManager\Factories\EmailTemplateFactory::new();
     }
 }
