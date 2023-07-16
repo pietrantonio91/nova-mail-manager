@@ -4,8 +4,10 @@ namespace Pietrantonio\NovaMailManager\Resources;
 
 use App\Nova\Resource;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Slug;
+use Laravel\Nova\Fields\Status;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\Trix;
@@ -55,6 +57,7 @@ class EmailTemplate extends Resource
             Text::make(__('Name'), 'name')->sortable(),
             Slug::make(__('Slug'), 'slug')->from('name')->sortable(),
             Text::make(__('Subject'), 'subject')->sortable(),
+            Boolean::make(__('Active'), 'is_active')->sortable(),
             TinymceEditor::make(__('Body'), 'body')
                 ->rules(['required', 'min:20'])
                 ->fullWidth()
