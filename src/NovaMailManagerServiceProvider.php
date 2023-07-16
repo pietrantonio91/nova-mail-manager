@@ -24,6 +24,7 @@ class NovaMailManagerServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__.'/../config/nova_mail_manager.php' => config_path('nova_mail_manager.php'),
+            __DIR__.'/../resources/views' => resource_path('views/vendor/nova-mail-manager'),
         ]);
 
         Nova::resources([
