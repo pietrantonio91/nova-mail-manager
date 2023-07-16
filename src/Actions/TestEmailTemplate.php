@@ -42,7 +42,7 @@ class TestEmailTemplate extends Action
     public function fields(NovaRequest $request)
     {
         return [
-            Text::make('Email')->rules('required', 'email'),
+            Text::make('Email')->rules(['required', 'email']),
         ];
     }
 }
