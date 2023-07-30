@@ -56,11 +56,6 @@ class EmailTemplate extends Model
         return Mail::send($email);
     }
 
-    protected static function newFactory()
-    {
-        return \Pietrantonio\NovaMailManager\Factories\EmailTemplateFactory::new();
-    }
-
     public function getFormattedBody(array $variables = [])
     {
         $variables = $variables ?: $this->variables;
@@ -86,6 +81,11 @@ class EmailTemplate extends Model
     public function getVariables()
     {
         return $this->getVariablesFromText($this->body);
+    }
+
+    protected static function newFactory()
+    {
+        return \Pietrantonio\NovaMailManager\Factories\EmailTemplateFactory::new();
     }
 
     private function getVariablesFromText(string $text)

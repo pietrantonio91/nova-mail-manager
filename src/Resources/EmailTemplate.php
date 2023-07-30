@@ -61,7 +61,7 @@ class EmailTemplate extends Resource
             TinymceEditor::make(__('Body'), 'body')
                 ->rules(['required', 'min:20'])
                 ->fullWidth()
-                ->help(__('The content of the article.'))
+                ->help(__('The content of the email. You can use variables with curly brackets and $: {{$exampleVariable}}.'))
                 ->options(config('nova_mail_manager.tinymce')),
         ];
     }
