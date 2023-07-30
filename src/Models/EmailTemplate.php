@@ -10,6 +10,8 @@ class EmailTemplate extends Model
 {
     use HasFactory;
 
+    public $variables = [];
+
     protected $table = 'email_templates';
 
     protected $fillable = [
@@ -23,7 +25,6 @@ class EmailTemplate extends Model
         'bcc',
         'reply_to',
         'attachments',
-        'variables',
         'description',
         'is_active',
     ];
@@ -56,5 +57,38 @@ class EmailTemplate extends Model
     protected static function newFactory()
     {
         return \Pietrantonio\NovaMailManager\Factories\EmailTemplateFactory::new();
+    }
+
+    public function getFormattedBody(array $variables = [])
+    {
+        $variables = $variables ?: $this->variables;
+        // if passed variables 
+        $body = $this->body;
+        foreach ($variables as $variable => $value) {
+            // replace variable removing the {{ }} and spaces from the variable name
+            $body = \preg_replace(
+                ['/{{\s*\$' . $variable . '\s*}}/'],
+                $value,
+                $body
+            );
+        }
+        return $body;
+    }
+
+    public function setVariables(array $variables)
+    {
+        $this->variables = $variables;
+        return $this;
+    }
+
+    private function getVariablesFromText(string $text)
+    {
+        preg_match_all('/{{\s*\$(.*?)\s*}}/', $text, $variables);
+        $variables = $variables[1];
+        // trim variable names
+        $variables = array_map('trim', $variables);
+        // remove duplicates
+        $variables = array_unique($variables);
+        return array_values($variables);
     }
 }
