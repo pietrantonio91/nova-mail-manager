@@ -47,9 +47,11 @@ class EmailTemplate extends Model
         return $query->where('is_active', true);
     }
 
-    public function sendTestEmail($to)
+    public function sendTestEmail(string $to, array $variables = [])
     {
-        $email = new \Pietrantonio\NovaMailManager\Mail\TestEmail($this);
+        $email = new \Pietrantonio\NovaMailManager\Mail\TemplateMailable();
+        $email->setTemplate($this);
+        $email->variables = $variables;
         $email->to($to);
         return Mail::send($email);
     }
@@ -79,6 +81,11 @@ class EmailTemplate extends Model
     {
         $this->variables = $variables;
         return $this;
+    }
+
+    public function getVariables()
+    {
+        return $this->getVariablesFromText($this->body);
     }
 
     private function getVariablesFromText(string $text)

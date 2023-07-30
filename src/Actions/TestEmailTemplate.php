@@ -10,6 +10,7 @@ use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Pietrantonio\NovaMailManager\Models\EmailTemplate;
 
 class TestEmailTemplate extends Action
 {
@@ -25,8 +26,11 @@ class TestEmailTemplate extends Action
     public function handle(ActionFields $fields, Collection $models)
     {
         foreach ($models as $model) {
+            $email = $fields->email;
+            unset($fields->email);
             $model->sendTestEmail(
-                $fields->email
+                $email,
+                $fields->toArray()
             );
         }
 
@@ -41,8 +45,20 @@ class TestEmailTemplate extends Action
      */
     public function fields(NovaRequest $request)
     {
-        return [
+        $emailTemplate = $request->findModelQuery()->first();
+        if (!$emailTemplate && $request->resources) {
+            $emailTemplate = EmailTemplate::find($request->resources);
+        }
+        $variables = $emailTemplate?->getVariables() ?? [];
+
+        $fields = [
             Text::make('Email')->rules(['required', 'email']),
         ];
+        
+        foreach ($variables as $variable) {
+            $fields[] = Text::make($variable)->rules(['required']);
+        }
+
+        return $fields;
     }
 }

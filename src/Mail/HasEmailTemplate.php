@@ -40,7 +40,7 @@ trait HasEmailTemplate
         return $this;
     }
 
-    private function setVariables(array $variables)
+    public function setVariables(array $variables)
     {
         $this->emailTemplate->setVariables($variables);
         return $this;

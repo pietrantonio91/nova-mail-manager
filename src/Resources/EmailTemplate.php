@@ -108,7 +108,8 @@ class EmailTemplate extends Resource
     public function actions(NovaRequest $request)
     {
         return [
-            \Pietrantonio\NovaMailManager\Actions\TestEmailTemplate::make(),
+            \Pietrantonio\NovaMailManager\Actions\TestEmailTemplate::make()
+                ->exceptOnIndex(),
         ];
     }
 }
