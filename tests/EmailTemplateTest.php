@@ -11,12 +11,14 @@ use Illuminate\Support\Facades\Mail;
 use Laravel\Nova\Fields\Email;
 use Pietrantonio\NovaMailManager\Mail\TestEmail;
 use Pietrantonio\NovaMailManager\Models\EmailTemplate;
-use Pietrantonio\NovaMailManager\Mail\CustomMailable;
+use Pietrantonio\NovaMailManager\Mail\TemplateMailable;
 use Tests\TestCase;
 
 class EmailTemplateTest extends TestCase
 {
     use RefreshDatabase;
+
+    private const TEMPLATE_SLUG = 'test-email-template';
 
     /**
      * A basic feature test example.
@@ -77,16 +79,28 @@ class EmailTemplateTest extends TestCase
         Mail::fake();
 
         Mail::to('test@test.com')
-            ->send(new CustomMailable($emailTemplate));
+            ->send(new TemplateMailable($emailTemplate));
 
-        Mail::assertSent(CustomMailable::class);
+        Mail::assertSent(TemplateMailable::class);
+    }
+
+    public function test_email_send_custom_mailable_by_slug()
+    {
+        $emailTemplate = $this->createEmailTemplate();
+
+        Mail::fake();
+
+        Mail::to('test@test.com')
+            ->send(new TemplateMailable($emailTemplate->slug));
+
+        Mail::assertSent(TemplateMailable::class);
     }
 
     private function createEmailTemplate(): EmailTemplate
     {
         return EmailTemplate::factory()->create([
             'name' => 'Test email template',
-            'slug' => 'test-email-template',
+            'slug' => self::TEMPLATE_SLUG,
             'subject' => 'Test email template subject',
             'body' => 'Test email template body',
         ]);

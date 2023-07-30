@@ -7,9 +7,13 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Pietrantonio\NovaMailManager\Models\EmailTemplate;
 
-class CustomMailable extends Mailable {
-    public function __construct(protected EmailTemplate $emailTemplate)
-    {}
+class TemplateMailable extends Mailable {
+    public function __construct(protected string|EmailTemplate $emailTemplate)
+    {
+        if (is_string($emailTemplate)) {
+            $this->emailTemplate = EmailTemplate::where('slug', $emailTemplate)->firstOrFail();
+        }
+    }
 
     public function envelope(): Envelope
     {
