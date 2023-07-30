@@ -122,6 +122,32 @@ class EmailTemplateTest extends TestCase
         Mail::assertSent(TemplateMailable::class);
     }
 
+    public function test_email_send_mailable_with_variable_in_subject()
+    {
+        $emailTemplate = $this->createEmailTemplate();
+        $emailTemplate->update([
+            'subject' => 'Hello {{ $name }} this is an email for you',
+        ]);
+
+        Mail::fake();
+
+        $customMailable = new TemplateMailable();
+        $customMailable->variables = [
+            'name' => 'John Doe'
+        ];
+        $customMailable->setTemplate($emailTemplate->slug);
+
+        $this->assertEquals(
+            $customMailable->emailTemplate->getFormattedSubject($customMailable->variables),
+            "Hello {$customMailable->variables['name']} this is an email for you"
+        );
+
+        Mail::to('test@test.com')
+            ->send($customMailable);        
+
+        Mail::assertSent(TemplateMailable::class);
+    }
+
     private function createEmailTemplate(): EmailTemplate
     {
         return EmailTemplate::factory()->create([
