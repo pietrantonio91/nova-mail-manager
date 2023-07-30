@@ -26,8 +26,10 @@ class TestEmailTemplate extends Action
     public function handle(ActionFields $fields, Collection $models)
     {
         foreach ($models as $model) {
+            // get email from fields and remove it from fields
             $email = $fields->email;
             unset($fields->email);
+            // send test email with email recipient and array of fields (variables)
             $model->sendTestEmail(
                 $email,
                 $fields->toArray()
@@ -45,16 +47,20 @@ class TestEmailTemplate extends Action
      */
     public function fields(NovaRequest $request)
     {
+        // get selected model from request
         $emailTemplate = $request->findModelQuery()->first();
         if (!$emailTemplate && $request->resources) {
             $emailTemplate = EmailTemplate::find($request->resources);
         }
+        // get variables from body and subject
         $variables = $emailTemplate?->getVariables() ?? [];
 
+        // create fields: the first one is the email to send the test to
         $fields = [
             Text::make('Email')->rules(['required', 'email']),
         ];
         
+        // add variables fields
         foreach ($variables as $variable) {
             $fields[] = Text::make($variable)->rules(['required']);
         }

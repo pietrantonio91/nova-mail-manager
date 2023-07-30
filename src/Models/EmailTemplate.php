@@ -39,6 +39,7 @@ class EmailTemplate extends Model
     {
         parent::__construct($attributes);
 
+        // set table name from config so devs can change it
         $this->table = config('nova_mail_manager.table_name');
     }
 
@@ -47,6 +48,13 @@ class EmailTemplate extends Model
         return $query->where('is_active', true);
     }
 
+    /**
+     * Send email using base template
+     *
+     * @param string $to
+     * @param array $variables
+     * @return \Illuminate\Mail\SentMessage|null
+     */
     public function sendTestEmail(string $to, array $variables = [])
     {
         $email = new \Pietrantonio\NovaMailManager\Mail\TemplateMailable();
@@ -56,12 +64,24 @@ class EmailTemplate extends Model
         return Mail::send($email);
     }
 
-    public function getFormattedBody(array $variables = [])
+    /**
+     * Get formatted body with variables
+     *
+     * @param array $variables
+     * @return string
+     */
+    public function getFormattedBody(array $variables = []): string
     {
         return $this->getFormattedText($this->body, $variables);
     }
 
-    public function getFormattedSubject(array $variables = [])
+    /**
+     * Get formatted subject with variables
+     *
+     * @param array $variables
+     * @return string
+     */
+    public function getFormattedSubject(array $variables = []): string
     {
         return $this->getFormattedText($this->subject, $variables);
     }
@@ -72,7 +92,12 @@ class EmailTemplate extends Model
         return $this;
     }
 
-    public function getVariables()
+    /**
+     * Get variables from body and subject, merge and remove duplicates.
+     *
+     * @return array
+     */
+    public function getVariables(): array
     {
         $variablesFromBody = $this->getVariablesFromText($this->body);
         $variablesFromSubject = $this->getVariablesFromText($this->subject);
@@ -87,7 +112,13 @@ class EmailTemplate extends Model
         return \Pietrantonio\NovaMailManager\Factories\EmailTemplateFactory::new();
     }
 
-    private function getVariablesFromText(string $text)
+    /**
+     * Get variables from passed text, trim names and remove duplicates.
+     *
+     * @param string $text
+     * @return array
+     */
+    private function getVariablesFromText(string $text): array
     {
         preg_match_all('/{{\s*\$(.*?)\s*}}/', $text, $variables);
         $variables = $variables[1];
@@ -98,7 +129,14 @@ class EmailTemplate extends Model
         return array_values($variables);
     }
 
-    private function getFormattedText(string $text, array $variables = [])
+    /**
+     * Replace variables in passed text with variables' values.
+     *
+     * @param string $text
+     * @param array $variables
+     * @return string
+     */
+    private function getFormattedText(string $text, array $variables = []): string
     {
         $variables = $variables ?: $this->variables;
         foreach ($variables as $variable => $value) {
@@ -108,7 +146,15 @@ class EmailTemplate extends Model
         return $text;
     }
 
-    private function replaceVariable(string $text, string $variable, string $value)
+    /**
+     * Replace single variable in text with value.
+     *
+     * @param string $text
+     * @param string $variable
+     * @param string $value
+     * @return string
+     */
+    private function replaceVariable(string $text, string $variable, string $value): string
     {
         return preg_replace(
             ['/{{\s*\$' . $variable . '\s*}}/'],

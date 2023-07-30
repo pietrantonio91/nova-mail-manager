@@ -78,8 +78,11 @@ class EmailTemplateTest extends TestCase
 
         Mail::fake();
 
+        $customMailable = new TemplateMailable();
+        $customMailable->setTemplate($emailTemplate);
+
         Mail::to('test@test.com')
-            ->send((new TemplateMailable())->setTemplate($emailTemplate));
+            ->send($customMailable);
 
         Mail::assertSent(TemplateMailable::class);
     }

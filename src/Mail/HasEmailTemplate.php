@@ -20,6 +20,7 @@ trait HasEmailTemplate
 
     public function content(): Content
     {
+        // If the email template is a string, we assume it's a slug, so we set the template by slug
         if ($this->emailTemplate && is_string($this->emailTemplate)) {
             $this->setTemplate($this->emailTemplate);
         }
@@ -29,7 +30,13 @@ trait HasEmailTemplate
         );
     }
 
-    public function setTemplate(string|EmailTemplate $emailTemplate)
+    /**
+     * Set the email template by slug or EmailTemplate model
+     *
+     * @param string|EmailTemplate $emailTemplate
+     * @return self
+     */
+    public function setTemplate(string|EmailTemplate $emailTemplate): self
     {
         if (is_string($emailTemplate)) {
             $this->emailTemplate = EmailTemplate::where('slug', $emailTemplate)->firstOrFail();
@@ -39,7 +46,13 @@ trait HasEmailTemplate
         return $this;
     }
 
-    public function setVariables(array $variables)
+    /**
+     * Set the variables for the email template
+     *
+     * @param array $variables
+     * @return self
+     */
+    public function setVariables(array $variables): self
     {
         $this->emailTemplate->setVariables($variables);
         return $this;
