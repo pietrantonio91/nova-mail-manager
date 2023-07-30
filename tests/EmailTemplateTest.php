@@ -32,7 +32,7 @@ class EmailTemplateTest extends TestCase
         $this->assertEquals('Test email template', $emailTemplate->name);
         $this->assertEquals('test-email-template', $emailTemplate->slug);
         $this->assertEquals('Test email template subject', $emailTemplate->subject);
-        $this->assertEquals('Test email template body', $emailTemplate->body);
+        $this->assertEquals('Hello {{ name }} this is an email for you', $emailTemplate->body);
     }
 
     public function test_email_template_update(): void
@@ -79,7 +79,7 @@ class EmailTemplateTest extends TestCase
         Mail::fake();
 
         Mail::to('test@test.com')
-            ->send(new TemplateMailable($emailTemplate));
+            ->send((new TemplateMailable())->setTemplate($emailTemplate));
 
         Mail::assertSent(TemplateMailable::class);
     }
@@ -90,8 +90,34 @@ class EmailTemplateTest extends TestCase
 
         Mail::fake();
 
+        $customMailable = new TemplateMailable();
+        $customMailable->setTemplate($emailTemplate->slug);
+
         Mail::to('test@test.com')
-            ->send(new TemplateMailable($emailTemplate->slug));
+            ->send($customMailable);
+
+        Mail::assertSent(TemplateMailable::class);
+    }
+
+    public function test_email_send_custom_mailable_by_slug_with_variables()
+    {
+        $emailTemplate = $this->createEmailTemplate();
+
+        Mail::fake();
+
+        $customMailable = new TemplateMailable();
+        $customMailable->variables = [
+            'name' => 'John Doe'
+        ];
+        $customMailable->setTemplate($emailTemplate->slug);
+
+        $this->assertStringContainsString(
+            "Hello {$customMailable->variables['name']} this is an email for you", 
+            $customMailable->render()
+        );
+        
+        Mail::to('test@test.com')
+            ->send($customMailable);
 
         Mail::assertSent(TemplateMailable::class);
     }
@@ -102,7 +128,7 @@ class EmailTemplateTest extends TestCase
             'name' => 'Test email template',
             'slug' => self::TEMPLATE_SLUG,
             'subject' => 'Test email template subject',
-            'body' => 'Test email template body',
+            'body' => 'Hello {{ name }} this is an email for you',
         ]);
     }
 }
