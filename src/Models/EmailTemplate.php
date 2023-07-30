@@ -74,7 +74,12 @@ class EmailTemplate extends Model
 
     public function getVariables()
     {
-        return $this->getVariablesFromText($this->body);
+        $variablesFromBody = $this->getVariablesFromText($this->body);
+        $variablesFromSubject = $this->getVariablesFromText($this->subject);
+        $variables = array_merge($variablesFromBody, $variablesFromSubject);
+        // remove duplicates
+        $variables = array_unique($variables);
+        return array_values($variables);
     }
 
     protected static function newFactory()
