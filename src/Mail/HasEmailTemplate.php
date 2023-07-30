@@ -14,7 +14,7 @@ trait HasEmailTemplate
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->emailTemplate->getFormattedSubject(),
+            subject: $this->emailTemplate->getFormattedSubject($this->variables),
         );
     }
 
