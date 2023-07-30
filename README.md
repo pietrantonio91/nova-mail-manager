@@ -23,7 +23,7 @@ php artisan vendor:publish --tag=lfm_public
 
 ## Mailable
 
-Use **HasEmailTemplate** trait in your own Mailable, like this:
+Use **HasEmailTemplate** trait in your own Mailable, and then set template you want to use by method **setTemplate**, like this:
 
 ```
 <?php
@@ -45,20 +45,7 @@ class MyCustomMailable extends Mailable
 
     public function __construct(public string $customParameter) 
     {
-        $this->variable1 =
-            'http://test.test?search=test';
-        $this->variable2 = [
-            1,
-            2,
-            3,
-        ];
-
-        // set variables to be passed to template
-        $this->variables = [
-            'variable1' => $this->variable1,
-            'variable2' => implode(', ', $this->variable2),
-            'customParameter' => $customParameter,
-        ];
+        ...
 
         // set template by slug
         $this->setTemplate('test-with-variables');
@@ -74,4 +61,45 @@ Mail::to('test@test.test')
     ->send(
         new MyCustomMailable()
     );
+```
+
+### Mailable - Variables
+
+If you want to use variables in your Mailable, add a property **variables** to your Mailable Class, like this:
+
+```
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+use Pietrantonio\NovaMailManager\Mail\HasEmailTemplate;
+
+class MyCustomMailable extends Mailable
+{
+    // use HasEmailTemplate trait
+    use Queueable, SerializesModels, HasEmailTemplate;
+
+    public function __construct(public string $customParameter) 
+    {
+        $variable1 = 'http://test.test?search=test';
+        $variable2 = [
+            1,
+            2,
+            3,
+        ];
+
+        // set variables to be passed to template
+        $this->variables = [
+            'variable1' => $variable1,
+            'variable2' => implode(', ', $variable2),
+            'customParameter' => $customParameter,
+        ];
+
+        ...
+    }
+}
+
 ```
