@@ -3,15 +3,11 @@
 namespace Pietrantonio\NovaMailManager\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Nova\Fields\Email;
-use Pietrantonio\NovaMailManager\Mail\TestEmail;
 use Pietrantonio\NovaMailManager\Models\EmailTemplate;
 use Pietrantonio\NovaMailManager\Mail\TemplateMailable;
+use Pietrantonio\NovaMailManager\Notifications\TemplateNotification;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class EmailTemplateTest extends TestCase
@@ -149,6 +145,82 @@ class EmailTemplateTest extends TestCase
             ->send($customMailable);        
 
         Mail::assertSent(TemplateMailable::class);
+    }
+
+    public function test_email_send_notification()
+    {
+        $emailTemplate = $this->createEmailTemplate();
+        $user = \App\Models\User::factory()->create();
+
+        Notification::fake();
+
+        $customNotification = new TemplateNotification();
+        $customNotification->setTemplate($emailTemplate->slug);
+
+        $this->assertEquals($emailTemplate->slug, $customNotification->emailTemplate->slug);
+    
+        $user->notify($customNotification);
+
+        Notification::assertSentTo(
+            [$user], TemplateNotification::class
+        );
+    }
+
+    public function test_email_send_notification_with_variables()
+    {
+        $emailTemplate = $this->createEmailTemplate();
+        $user = \App\Models\User::factory()->create();
+
+        Notification::fake();
+
+        $customNotification = new TemplateNotification();
+        $customNotification->variables = [
+            'name' => 'John Doe'
+        ];
+        $customNotification->setTemplate($emailTemplate->slug);
+
+        $this->assertEquals($emailTemplate->slug, $customNotification->emailTemplate->slug);
+
+        $this->assertStringContainsString(
+            "Hello {$customNotification->variables['name']} this is an email for you", 
+            $customNotification->emailTemplate->getFormattedBody($customNotification->variables)
+        );
+    
+        $user->notify($customNotification);
+
+        Notification::assertSentTo(
+            [$user], TemplateNotification::class
+        );
+    }
+
+    public function test_email_send_notification_with_variables_in_subject()
+    {
+        $emailTemplate = $this->createEmailTemplate();
+        $emailTemplate->update([
+            'subject' => 'Hello {{ $name }} this is an email for you',
+        ]);
+        $user = \App\Models\User::factory()->create();
+
+        Notification::fake();
+
+        $customNotification = new TemplateNotification();
+        $customNotification->variables = [
+            'name' => 'John Doe'
+        ];
+        $customNotification->setTemplate($emailTemplate->slug);
+
+        $this->assertEquals($emailTemplate->slug, $customNotification->emailTemplate->slug);
+
+        $this->assertEquals(
+            $customNotification->emailTemplate->getFormattedSubject($customNotification->variables),
+            "Hello {$customNotification->variables['name']} this is an email for you"
+        );
+    
+        $user->notify($customNotification);
+
+        Notification::assertSentTo(
+            [$user], TemplateNotification::class
+        );
     }
 
     private function createEmailTemplate(): EmailTemplate
