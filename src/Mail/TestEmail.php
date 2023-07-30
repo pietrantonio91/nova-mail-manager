@@ -38,7 +38,7 @@ class TestEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'nova-mail-manager::test',
+            view: 'nova-mail-manager::base',
             with: [
                 'emailTemplate' => $this->emailTemplate,
             ],
