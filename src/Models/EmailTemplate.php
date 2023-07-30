@@ -58,18 +58,12 @@ class EmailTemplate extends Model
 
     public function getFormattedBody(array $variables = [])
     {
-        $variables = $variables ?: $this->variables;
-        // if passed variables 
-        $body = $this->body;
-        foreach ($variables as $variable => $value) {
-            // replace variable removing the {{ }} and spaces from the variable name
-            $body = \preg_replace(
-                ['/{{\s*\$' . $variable . '\s*}}/'],
-                $value,
-                $body
-            );
-        }
-        return $body;
+        return $this->getFormattedText($this->body, $variables);
+    }
+
+    public function getFormattedSubject(array $variables = [])
+    {
+        return $this->getFormattedText($this->subject, $variables);
     }
 
     public function setVariables(array $variables)
@@ -97,5 +91,24 @@ class EmailTemplate extends Model
         // remove duplicates
         $variables = array_unique($variables);
         return array_values($variables);
+    }
+
+    private function getFormattedText(string $text, array $variables = [])
+    {
+        $variables = $variables ?: $this->variables;
+        foreach ($variables as $variable => $value) {
+            // replace variable removing the {{ }} and spaces from the variable name
+            $text = $this->replaceVariable($text, $variable, $value);
+        }
+        return $text;
+    }
+
+    private function replaceVariable(string $text, string $variable, string $value)
+    {
+        return preg_replace(
+            ['/{{\s*\$' . $variable . '\s*}}/'],
+            $value,
+            $text
+        );
     }
 }

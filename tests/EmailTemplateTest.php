@@ -32,7 +32,7 @@ class EmailTemplateTest extends TestCase
         $this->assertEquals('Test email template', $emailTemplate->name);
         $this->assertEquals('test-email-template', $emailTemplate->slug);
         $this->assertEquals('Test email template subject', $emailTemplate->subject);
-        $this->assertEquals('Hello {{ name }} this is an email for you', $emailTemplate->body);
+        $this->assertEquals('Hello {{ $name }} this is an email for you', $emailTemplate->body);
     }
 
     public function test_email_template_update(): void
@@ -69,7 +69,7 @@ class EmailTemplateTest extends TestCase
 
         $emailTemplate->sendTestEmail('test@test.com');
 
-        Mail::assertSent(TestEmail::class);
+        Mail::assertSent(TemplateMailable::class);
     }
 
     public function test_email_send_custom_mailable()
@@ -128,7 +128,7 @@ class EmailTemplateTest extends TestCase
             'name' => 'Test email template',
             'slug' => self::TEMPLATE_SLUG,
             'subject' => 'Test email template subject',
-            'body' => 'Hello {{ name }} this is an email for you',
+            'body' => 'Hello {{ $name }} this is an email for you',
         ]);
     }
 }
