@@ -2,19 +2,19 @@
 
 ## Install package
 
-```
+```bash
 composer require pietrantonio/nova-mail-manager
 ```
 
 ## Database
 
-```
+```bash
 php artisan migrate
 ```
 
 ## File manager
 
-```
+```bash
 php artisan vendor:publish --tag=lfm_config
 php artisan vendor:publish --tag=lfm_public
 ```
@@ -25,7 +25,7 @@ php artisan vendor:publish --tag=lfm_public
 
 Use **HasEmailTemplate** trait in your own Mailable, and then set template you want to use by method **setTemplate**, like this:
 
-```
+```php
 <?php
 
 namespace App\Mail;
@@ -56,7 +56,7 @@ class MyCustomMailable extends Mailable
 
 Use your Mailable like this:
 
-```
+```php
 Mail::to('test@test.test')
     ->send(
         new MyCustomMailable()
@@ -67,7 +67,7 @@ Mail::to('test@test.test')
 
 If you want to use variables in your Mailable, add a property **variables** to your Mailable Class, like this:
 
-```
+```php
 <?php
 
 namespace App\Mail;
@@ -117,7 +117,7 @@ Use **HasNotificationEmailTemplate** trait in your own Notification class, and t
 then use **$this->sendWithTemplate()** method to send the notification email with custom template, subject and body. 
 Example:
 
-```
+```php
 <?php
 
 namespace App\Notifications;
@@ -158,7 +158,7 @@ class MyCustomNotification extends Notification
 If you want to use variables in your Notification, add a property **variables** to your Notification class or use he method **setVariables**.
 Example:
 
-```
+```php
 <?php
 
 namespace App\Notifications;
